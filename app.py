@@ -5,6 +5,13 @@ from reportlab.lib.styles import getSampleStyleSheet
 
 import csv
 import os
+import sqlite3
+
+DB_NAME = "assessments.db"
+# =========================
+# ADMIN CONFIG
+# =========================
+ADMIN_PIN = os.environ.get("ADMIN_PIN", "1234")   # change later
 
 app = Flask(__name__)
 
@@ -121,6 +128,23 @@ def generate_pdf(data, risk, issues):
 # WEB APP
 # =========================
 def save_assessment(data, risk, issues):
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+
+    c.execute("""
+    INSERT INTO assessments (date, name, location, source, risk, issues)
+    VALUES (?, ?, ?, ?, ?, ?)
+    """, (
+        datetime.now().strftime("%Y-%m-%d %H:%M"),
+        data["name"],
+        data["location"],
+        data["source"],
+        risk,
+        "; ".join(issues) if issues else "None"
+    ))
+
+    conn.commit()
+    conn.close()
     file_exists = os.path.isfile("assessments.csv")
 
     with open("assessments.csv", mode="a", newline="", encoding="utf-8") as f:
@@ -144,6 +168,24 @@ def save_assessment(data, risk, issues):
             risk,
             "; ".join(issues) if issues else "None"
         ])
+def init_db():
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS assessments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        date TEXT,
+        name TEXT,
+        location TEXT,
+        source TEXT,
+        risk TEXT,
+        issues TEXT
+    )
+    """)
+
+    conn.commit()
+    conn.close()
 @app.route("/", methods=["GET", "POST"])
 def home():
     message = ""
@@ -330,19 +372,82 @@ def home():
     </body>
     </html>
     """
+ADMIN_PIN = "1234"  # change this to your own secret pin
+
+
 @app.route("/data")
 def view_data():
+    pin = request.args.get("pin")
+    if pin != ADMIN_PIN:
+        return "<h3>❌ Unauthorized access</h3>"
+
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+    c.execute("SELECT * FROM assessments ORDER BY id DESC")
+    rows = c.fetchall()
+    conn.close()
+
+    table_rows = ""
+    for r in rows:
+        table_rows += f"""
+        <tr>
+            <td>{r[1]}</td>
+            <td>{r[2]}</td>
+            <td>{r[3]}</td>
+            <td>{r[4]}</td>
+            <td>{r[5]}</td>
+            <td>{r[6]}</td>
+        </tr>
+        """
+
+    return f"""
+    <html>
+    <head>
+        <title>Admin Dashboard</title>
+        <style>
+            body {{ font-family: Arial; padding:20px; }}
+            table {{ width:100%; border-collapse:collapse; }}
+            th, td {{ border:1px solid #999; padding:8px; }}
+            th {{ background:#0288d1; color:white; }}
+        </style>
+    </head>
+    <body>
+        <h2>📊 Water Assessments (Admin)</h2>
+        <table>
+            <tr>
+                <th>Date</th>
+                <th>Name</th>
+                <th>Location</th>
+                <th>Source</th>
+                <th>Risk</th>
+                <th>Issues</th>
+            </tr>
+            {table_rows}
+        </table>
+    </body>
+    </html>
+    """
+
     rows = []
+    risk_summary = {"Low": 0, "Medium": 0, "High": 0}
 
     if os.path.exists("assessments.csv"):
         with open("assessments.csv", newline="", encoding="utf-8") as f:
             reader = csv.reader(f)
             rows = list(reader)
 
+            # count risks (skip header)
+            for r in rows[1:]:
+                if len(r) > 4 and r[4] in risk_summary:
+                    risk_summary[r[4]] += 1
+
+    # build table
     table_rows = ""
     for i, row in enumerate(rows):
         tag = "th" if i == 0 else "td"
-        table_rows += "<tr>" + "".join(f"<{tag}>{cell}</{tag}>" for cell in row) + "</tr>"
+        table_rows += "<tr>" + "".join(
+            f"<{tag}>{cell}</{tag}>" for cell in row
+        ) + "</tr>"
 
     return f"""
     <html>
@@ -368,6 +473,13 @@ def view_data():
                 background: #0288d1;
                 color: white;
             }}
+            .summary {{
+                background: white;
+                padding: 12px;
+                border-radius: 8px;
+                margin-bottom: 15px;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            }}
             a {{
                 display:inline-block;
                 margin-top:15px;
@@ -378,7 +490,15 @@ def view_data():
         </style>
     </head>
     <body>
+
         <h2>📊 Saved Water Assessments</h2>
+
+        <div class="summary">
+            <strong>Risk Summary</strong><br>
+            Low: {risk_summary["Low"]}<br>
+            Medium: {risk_summary["Medium"]}<br>
+            High: {risk_summary["High"]}
+        </div>
 
         <table>
             {table_rows}
@@ -386,6 +506,7 @@ def view_data():
 
         <a href="/download_csv">⬇ Download CSV</a><br>
         <a href="/">⬅ Back to App</a>
+
     </body>
     </html>
     """
@@ -395,6 +516,15 @@ def download_csv():
 @app.route("/download")
 def download():
     return send_file("water_report.pdf", as_attachment=True)
+# =========================
+# INITIALIZE DATABASE
+# =========================
+init_db()
 
+# =========================
+# RUN APP
+# =========================
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
