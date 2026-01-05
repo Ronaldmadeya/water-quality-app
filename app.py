@@ -93,6 +93,10 @@ def generate_pdf(data, risk, issues):
 # =========================
 @app.route("/", methods=["GET", "POST"])
 def home():
+    # LANGUAGE CHOICE (GET or POST)
+    lang = request.values.get("lang", "en")
+    text = LANG.get(lang, LANG["en"])
+
     message = ""
     issues_html = ""
     treatments_html = ""
@@ -111,7 +115,7 @@ def home():
 
         generate_pdf(data, risk, issues)
 
-        message = f"Overall Risk Level: {risk}"
+        message = f"{text['recommendations']}: {risk}"
         issues_html = "".join(f"<li>{i}</li>" for i in issues)
         treatments_html = "".join(f"<li>{t}</li>" for t in TREATMENTS[risk])
         pdf_ready = True
@@ -124,77 +128,132 @@ def home():
     return f"""
     <html>
     <head>
-    <style>
-        body {{
-            font-family: Arial;
-            background: linear-gradient(120deg,#e0f7fa,#e8f5e9);
-            padding:20px;
-        }}
-        .card {{
-            background:white;
-            padding:20px;
-            border-radius:12px;
-            box-shadow:0 4px 10px rgba(0,0,0,0.15);
-            max-width:520px;
-            margin:auto;
-        }}
-        h2 {{ color:#0277bd; }}
-        label {{ color:#2e7d32; font-weight:bold; }}
-        input, select {{
-            width:100%;
-            padding:8px;
-            margin-bottom:12px;
-            border-radius:6px;
-            border:1px solid #ccc;
-        }}
-        button {{
-            background:#0288d1;
-            color:white;
-            border:none;
-            padding:12px;
-            width:100%;
-            border-radius:8px;
-            font-size:16px;
-        }}
-    </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body {{
+                font-family: Arial;
+                background: linear-gradient(120deg,#e0f7fa,#e8f5e9);
+                padding:10px;
+                margin:0;
+            }}
+            .card {{
+                background:white;
+                padding:20px;
+                border-radius:12px;
+                box-shadow:0 4px 10px rgba(0,0,0,0.15);
+                max-width:95%;
+                margin:10px auto;
+            }}
+            h2 {{ color:#0277bd; text-align:center; }}
+            label {{ color:#2e7d32; font-weight:bold; }}
+            input, select {{
+                width:100%;
+                padding:10px;
+                margin-bottom:12px;
+                border-radius:6px;
+                border:1px solid #ccc;
+            }}
+            button {{
+                background:#0288d1;
+                color:white;
+                border:none;
+                padding:14px;
+                width:100%;
+                border-radius:8px;
+                font-size:16px;
+                cursor:pointer;
+            }}
+            ul {{ padding-left:18px; }}
+        </style>
     </head>
 
     <body>
-    <div class="card">
-        <h2>💧 Water Quality Assessment</h2>
 
-        <form method="post">
-            <label>Your Name</label>
-            <input name="name" required>
-
-            <label>Location</label>
-            <input name="location" required>
-
-            <label>Water Source</label>
-            <select name="source">
-                <option>Well</option>
-                <option>Borehole</option>
-                <option>River</option>
-                <option>Tap</option>
+        <!-- LANGUAGE SELECTION (USER CHOICE) -->
+        <form method="get" style="text-align:center;margin-bottom:10px;">
+            <label>{text['language']}:</label>
+            <select name="lang" onchange="this.form.submit()">
+                <option value="en" {"selected" if lang=="en" else ""}>English</option>
+                <option value="ny" {"selected" if lang=="ny" else ""}>Chichewa</option>
             </select>
-
-            {form_inputs}
-
-            <button>Assess Water</button>
         </form>
 
-        <h3>{message}</h3>
-        <ul>{issues_html}</ul>
+        <div class="card">
+            <h2>💧 {text['title']}</h2>
 
-        <h4>Recommended Treatments</h4>
-        <ul>{treatments_html}</ul>
+            <form method="post">
+                <!-- PRESERVE LANGUAGE CHOICE -->
+                <input type="hidden" name="lang" value="{lang}">
 
-        {"<a href='/download'>📄 Download PDF Report</a>" if pdf_ready else ""}
-    </div>
+                <label>Your Name</label>
+                <input name="name" required>
+
+                <label>Location</label>
+                <input name="location" required>
+
+                <label>Water Source</label>
+                <select name="source">
+                    <option>Well</option>
+                    <option>Borehole</option>
+                    <option>River</option>
+                    <option>Tap</option>
+                </select>
+
+                {form_inputs}
+
+                <button>{text['submit']}</button>
+            </form>
+
+            <h3>{message}</h3>
+            <ul>{issues_html}</ul>
+
+            <h4>{text['recommendations']}</h4>
+            <ul>{treatments_html}</ul>
+
+            {"<a href='/download'>📄 Download PDF Report</a>" if pdf_ready else ""}
+        </div>
+
+        <hr style="margin:30px 0;">
+
+        <!-- DEVELOPER & DONATION SECTION -->
+        <div style="text-align:center; font-size:14px; color:#333; padding:15px;">
+            <p>
+                <strong>Developed by RONALD TECH</strong><br>
+                <em>Local Innovation for Africa 🌍</em>
+            </p>
+
+            <p>
+                Developer: <strong>Ronald Madeya</strong><br>
+                Email:
+                <a href="mailto:madeyaronald727@gmail.com">
+                    madeyaronald727@gmail.com
+                </a>
+            </p>
+
+            <button onclick="document.getElementById('donate').style.display='block'"
+                style="background:#1e88e5;color:white;border:none;
+                padding:10px 18px;border-radius:6px;cursor:pointer;">
+                ❤️ Support This Project
+            </button>
+
+            <div id="donate" style="display:none; margin-top:15px;
+                border:1px solid #ccc; padding:15px; border-radius:8px;">
+                <p><strong>Support via Mobile Money / Bank</strong></p>
+                <p>
+                    Airtel Money Code: <strong>10032217</strong><br>
+                    TNM Agent Code: <strong>286291</strong><br>
+                    Standard Bank Account: <strong>9100005969937</strong>
+                </p>
+                <p style="font-size:12px;color:#666;">
+                    Your support helps improve water safety tools
+                    for rural and urban communities.
+                </p>
+            </div>
+        </div>
+
     </body>
     </html>
     """
-
 @app.route("/download")
 def download():
     return send_file("water_report.pdf", as_attachment=True)
