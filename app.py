@@ -6,6 +6,32 @@ from reportlab.lib.styles import getSampleStyleSheet
 app = Flask(__name__)
 
 # =========================
+# LANGUAGE DICTIONARY
+# =========================
+LANG = {
+    "en": {
+        "title": "Water Quality Assessment App",
+        "submit": "Assess Water",
+        "safe": "SAFE",
+        "unsafe": "UNSAFE",
+        "recommendations": "Recommendations",
+        "language": "Language"
+    },
+    "ny": {
+        "title": "Pulogalamu Yoyesa Madzi",
+        "submit": "Yezani Madzi",
+        "safe": "OTETEZEKA",
+        "unsafe": "OWOPSA",
+        "recommendations": "Malangizo",
+        "language": "Chilankhulo"
+    }
+}
+
+# =========================
+# WHO GUIDELINES
+# =========================
+
+# =========================
 # WHO GUIDELINES
 # =========================
 HEALTH_BASED = {
