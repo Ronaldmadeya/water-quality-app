@@ -3,6 +3,9 @@ from datetime import datetime
 from reportlab.platypus import SimpleDocTemplate, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
 
+import csv
+import os
+
 app = Flask(__name__)
 
 # =========================
@@ -117,8 +120,55 @@ def generate_pdf(data, risk, issues):
 # =========================
 # WEB APP
 # =========================
+def save_assessment(data, risk, issues):
+    file_exists = os.path.isfile("assessments.csv")
+
+    with open("assessments.csv", mode="a", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+
+        if not file_exists:
+            writer.writerow([
+                "Date",
+                "Name",
+                "Location",
+                "Water Source",
+                "Risk Level",
+                "Issues"
+            ])
+
+        writer.writerow([
+            datetime.now().strftime("%Y-%m-%d %H:%M"),
+            data["name"],
+            data["location"],
+            data["source"],
+            risk,
+            "; ".join(issues) if issues else "None"
+        ])
 @app.route("/", methods=["GET", "POST"])
 def home():
+    message = ""
+    issues_html = ""
+    treatments_html = ""
+    pdf_ready = False
+
+    if request.method == "POST":
+        values = {k: float(request.form[k]) for k in {**HEALTH_BASED, **AESTHETIC}}
+
+        risk, issues = assess(values)
+
+        data = {
+            "name": request.form["name"],
+            "location": request.form["location"],
+            "source": request.form["source"]
+        }
+
+        generate_pdf(data, risk, issues)
+        save_assessment(data, risk, issues)
+
+        message = f"Overall Risk Level: {risk}"
+        issues_html = "".join(f"<li>{i}</li>" for i in issues)
+        treatments_html = "".join(f"<li>{t}</li>" for t in TREATMENTS[risk])
+        pdf_ready = True
     # LANGUAGE CHOICE (GET or POST)
     lang = request.values.get("lang", "en")
     text = LANG.get(lang, LANG["en"])
@@ -280,6 +330,68 @@ def home():
     </body>
     </html>
     """
+@app.route("/data")
+def view_data():
+    rows = []
+
+    if os.path.exists("assessments.csv"):
+        with open("assessments.csv", newline="", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            rows = list(reader)
+
+    table_rows = ""
+    for i, row in enumerate(rows):
+        tag = "th" if i == 0 else "td"
+        table_rows += "<tr>" + "".join(f"<{tag}>{cell}</{tag}>" for cell in row) + "</tr>"
+
+    return f"""
+    <html>
+    <head>
+        <title>Saved Water Assessments</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body {{
+                font-family: Arial;
+                padding: 15px;
+                background: #f1f8e9;
+            }}
+            table {{
+                width: 100%;
+                border-collapse: collapse;
+            }}
+            th, td {{
+                border: 1px solid #999;
+                padding: 8px;
+                font-size: 14px;
+            }}
+            th {{
+                background: #0288d1;
+                color: white;
+            }}
+            a {{
+                display:inline-block;
+                margin-top:15px;
+                text-decoration:none;
+                color:#0288d1;
+                font-weight:bold;
+            }}
+        </style>
+    </head>
+    <body>
+        <h2>📊 Saved Water Assessments</h2>
+
+        <table>
+            {table_rows}
+        </table>
+
+        <a href="/download_csv">⬇ Download CSV</a><br>
+        <a href="/">⬅ Back to App</a>
+    </body>
+    </html>
+    """
+@app.route("/download_csv")
+def download_csv():
+    return send_file("assessments.csv", as_attachment=True)
 @app.route("/download")
 def download():
     return send_file("water_report.pdf", as_attachment=True)
