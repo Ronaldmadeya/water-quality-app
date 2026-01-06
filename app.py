@@ -321,7 +321,7 @@ function closeMenu(){{document.getElementById('panel').style.display='none';}}
     font-size:18px;
 ">✕ Close</button>
 
-<div style="max-width:700px;margin:auto;line-height:1.7;">
+<div style="max-width:695px;margin:auto;line-height:1.7;">
 
 <h2 style="color:#01579b;margin-top:25px;">
 💧 About This App
@@ -336,14 +336,14 @@ function closeMenu(){{document.getElementById('panel').style.display='none';}}
 </p>
 
 <p>
-{ "This application exists because millions of people drink unsafe water — not by choice, but because testing tools are expensive, distant, or unavailable."
+{ "This application has been develoved to because millions of people drink unsafe water not by choice, but because testing tools are expensive, far away , or completely unavailable."
   if lang=="en" else
-  "Pulogalamuyi ilipo chifukwa anthu mamiliyoni ambiri amamwa madzi osatetezeka — osati chifukwa chosankha, koma chifukwa zida zoyesera madzi ndizodula, zakutali, kapena palibe." }
+  "Pulogalamuyi yayikidwa chifukwa anthu ochuluka amamwa madzi omwe ndi osatetezeka  osati chifukwa anasankha okha, koma popeza zipangizo zoyesera madzi ndizodula, zakutali, kapena palibiretu kumene." }
 </p>
 
 <hr>
 
-<h3 style="color:#0277bd;">⚙️ { "How It Works" if lang=="en" else "Mmene Imagwirira Ntchito" }</h3>
+<h3 style="color:#0277bd;"> { "How It Works" if lang=="en" else "Mmene Imagwirira Ntchito" }</h3>
 
 <p>
 { "You only test what you are able to test. Even with limited data, the system intelligently evaluates health risk and gives practical guidance."
@@ -353,7 +353,7 @@ function closeMenu(){{document.getElementById('panel').style.display='none';}}
 
 <hr>
 
-<h3 style="color:#0277bd;">🌍 { "Why This Matters" if lang=="en" else "Chifukwa Chake Ndi Chofunika" }</h3>
+<h3 style="color:#0277bd;"> { "Why This Matters" if lang=="en" else "Chifukwa Chake chimene pulogalamuyi iri  yofunikira" }</h3>
 
 <ul>
 <li>{ "Works without laboratories" if lang=="en" else "Imagwira ntchito popanda labotale" }</li>
@@ -363,7 +363,7 @@ function closeMenu(){{document.getElementById('panel').style.display='none';}}
 
 <hr>
 
-<h3 style="color:#0277bd;">🧩 { "Gaps It Fills" if lang=="en" else "Mipata Imene Ikudzaza" }</h3>
+<h3 style="color:#0277bd;"> { "Gaps It Fills" if lang=="en" else "Mipata yomwe pulogalamuyi ikusokelera" }</h3>
 
 <p>
 { "High cost, long distances, lack of equipment, low literacy, and technological exclusion."
@@ -373,22 +373,22 @@ function closeMenu(){{document.getElementById('panel').style.display='none';}}
 
 <hr>
 
-<h3 style="color:#0277bd;">🚀 { "Developer Vision" if lang=="en" else "Masomphenya a Wopanga" }</h3>
+<h3 style="color:#0277bd;"> { "Developer Vision" if lang=="en" else "Masomphenya a Wopanga" }</h3>
 
 <p style="font-style:italic;">
-{ "To place scientific water safety into the hands of every village, every household, and every mother — so no child gets sick from the water they drink."
+{ "To place scientific water safety into the hands of every village, every household, and every mother so no child gets sick from the water they drink."
   if lang=="en" else
-  "Kupereka chitetezo cha madzi cha sayansi m'manja mwa mudzi uliwonse, banja lililonse, ndi amayi onse — kuti mwana aliyense azimwa madzi otetezeka." }
+  "Kupereka chitetezo cha madzi cha sayansi m'manja mwa mudzi uliwonse, banja lililonse, ndi amayi onse kuti mwana aliyense azimwa madzi otetezeka." }
 </p>
 
 <hr>
 
-<h3 style="color:#0277bd;">🛠️ { "Barriers Being Broken" if lang=="en" else "Zotchinga Zikuphwanyidwa" }</h3>
+<h3 style="color:#0277bd;"> { "Barriers Being Broken" if lang=="en" else "Zotchinga zonse tsopano zikupasulidwa" }</h3>
 
 <p>
-{ "Poverty. Geography. Silence. This app exists to break them — permanently."
+{ "Poverty. Geographical location. Silence. This app exists to break thse drawbacks permanently."
   if lang=="en" else
-  "Umphawi. Mtunda. Kusadziwika. Pulogalamuyi ilipo kuti iziphwanye zonsezi — kosatha." }
+  "Umphawi. Dera lomwe mukupezeka, kumudzi kapena kutawuni. Kusadziwika. Pulogalamuyi yayikidwa kuti aliyense apeze phindu mopanda kuyikiridwa malire kwa nthawi zonse." }
 </p>
 
 <p style="margin-top:20px;font-weight:bold;">
@@ -438,15 +438,15 @@ function closeMenu(){{document.getElementById('panel').style.display='none';}}
 
 <div style="padding:20px; text-align:center;">
 <p><strong>
-{ "Every contribution you make is not a donation — it is a life protected, a child spared from disease, and a step toward water justice."
+{ "SAVE LIVES, CONTRIBUTE!."
   if lang=="en" else
-  "Thandizo lililonse silingokhala mphatso — ndi moyo wopulumutsidwa, mwana wotetezedwa ku matenda, ndi sitepe yopita ku chilungamo cha madzi." }
+  "THANDIZANI , NDIKUPULUMUTSA MIYOYO YOCHULUKA!." }
 </strong></p>
 
 <p>
 { "By supporting this project, you are funding African-led solutions, not temporary aid. You are investing in dignity, science, and survival."
   if lang=="en" else
-  "Mukathandiza pulogalamuyi, mukuthandiza njira zothetsera mavuto zopangidwa ndi Aafrika okha — osati thandizo lakanthawi. Mukuyika ndalama mu ulemu, sayansi, ndi moyo." }
+  "Mukathandiza pulogalamuyi, mukuthandiza njira zothetsera mavuto zopangidwa ndi Aafrika okha osati thandizo lakanthawi. Mukuyika ndalama mu ulemu, sayansi, ndi moyo." }
 </p>
 
 <button onclick="document.getElementById('donate').style.display='block'">
